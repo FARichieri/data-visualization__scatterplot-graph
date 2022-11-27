@@ -1,12 +1,15 @@
 * {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .main {
   height: 100vh;
   width: 100vw;
   display: flex;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
 }
 
 .container {
@@ -14,7 +17,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
   width: 100%;
 }
 
@@ -38,4 +40,42 @@ svg {
   box-shadow: 0 0 10px 2px #00000080;
   margin: auto;
   width: 100%;
+  padding: 0 10vw 0 5vw;
+}
+
+#tooltip {
+  align-items: center;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #313639;
+  box-shadow: 0 0 10px 1px #00000080;
+  color: #313639;
+  display: flex;
+  font-size: 1.5vw;
+  justify-content: center;
+  padding: 0.5rem;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  width: 15vw;
+}
+
+a {
+  position: absolute;
+  bottom: 0%;
+  font-family: 'Orbitron', sans-serif;
+  text-decoration: none;
+  color: black;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: 0.5s;
+  opacity: 0.7;
+  padding: 0.5rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+a:hover {
+  opacity: 1;
+  filter: brightness(1.5);
 }

@@ -10,11 +10,23 @@ const displayChart = async () => {
       });
       data.sort((a, b) => a.Year - b.Year);
 
-      console.log({ data });
-
       const width = 600;
       const height = 280;
       const padding = 60;
+
+      const types = ['doping', 'clean'];
+      const typeColor = (type) => (type === 'doping' ? 'red' : 'green');
+      const typeText = (type) =>
+        type === 'doping'
+          ? 'Riders with doping allegations'
+          : 'No doping allegations';
+      const circleColor = (Doping) => (Doping === '' ? 'green' : 'red');
+
+      const tooltip = d3
+        .select('.container')
+        .append('div')
+        .attr('id', 'tooltip')
+        .style('opacity', 0);
 
       const svg = d3
         .select('.container')
@@ -27,23 +39,21 @@ const displayChart = async () => {
         .attr('x', width / 2)
         .attr('y', padding / 3)
         .attr('text-anchor', 'middle')
-        .style('fill', 'red')
         .style('font-size', '1.2rem')
         .text('Doping in Professional Bicycle Racing');
       svg
         .append('text')
         .attr('id', 'subtitle')
         .attr('x', width / 2)
-        .attr('y', padding / 1.4)
+        .attr('y', padding / 1.5)
         .attr('text-anchor', 'middle')
-        .style('fill', 'red')
         .style('font-size', '1rem')
         .text(`35 Fastest times up Alpe d'Huez`);
 
       svg
         .append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('x', -115)
+        .attr('x', -130)
         .attr('y', 15)
         .style('font-size', '.6rem')
         .text('Time in Minutes');
@@ -86,51 +96,54 @@ const displayChart = async () => {
         .attr('cx', (d, i) => xScale(d.Year))
         .attr('cy', (d) => yScale(d.Time))
         .attr('r', 3)
-        .attr('fill', 'green');
+        .attr('fill', (d) => circleColor(d.Doping))
+        .on('mouseover', function (d, item) {
+          d3.select(this).transition().duration('50').attr('opacity', '.85');
+          tooltip.transition().duration(100).style('opacity', 1);
+          tooltip
+            .html(
+              `
+            ${item.Name}: ${item.Nationality} </br> Year: ${
+                item.Year
+              }, Time: ${item.Time.toTimeString().slice(3, 8)} </br> ${
+                item.Doping ? '</br>' + item.Doping : ''
+              }
+          `
+            )
+            .attr('data-year', item.Year)
+            .style('left', d.pageX + 10 + 'px')
+            .style('top', d.pageY + 10 + 'px');
+        })
+        .on('mouseout', function (d, item) {
+          d3.select(this).transition().duration('50').attr('opacity', '1');
+          tooltip.transition().duration(100).style('opacity', 0);
+        });
 
       svg.append('g').attr('id', 'legend');
 
-      const types = ['doping', 'clean'];
-
-      types.map((type) =>
+      types.map((type, index) =>
         svg
           .select('#legend')
           .append('g')
           .attr('class', 'legend-label')
           .append('rect')
-          .attr('x', width - padding)
-          .attr('y', (height - padding) / 2)
-          .attr('width', 25)
-          .attr('height', 25)
-          .attr('fill', 'yellow')
-          .append('text')
-          .attr('x', width - padding)
-          .attr('y', (height - padding) / 2 + 40)
-          .attr('text-anchor', 'end')
-          .style('font-size', '.5rem')
-          .text(
-            `${
-              type === 'doping'
-                ? 'Riders with doping allegations'
-                : 'No doping allegations'
-            }`
-          )
+          .attr('x', width - padding + 5)
+          .attr('y', (height - 15 - (padding * index) / 2) / 2)
+          .attr('width', 10)
+          .attr('height', 10)
+          .attr('fill', typeColor(type))
       );
 
-      // legendContainer
-      //   .selectAll('.legend-label')
-      //   .append('text')
-      //   .attr('x', width - padding)
-      //   .attr('y', (height - padding) / 2 + 40)
-      //   .attr('text-anchor', 'end')
-      //   .style('font-size', '.5rem')
-      //   .text(
-      //     types.map((type) =>
-      //       type === 'doping'
-      //         ? 'Riders with doping allegations'
-      //         : 'No doping allegations'
-      //     )
-      //   );
+      types.map((type, index) =>
+        svg
+          .selectAll('.legend-label')
+          .append('text')
+          .attr('x', width - padding)
+          .attr('y', (height - (padding * index) / 2) / 2)
+          .attr('text-anchor', 'end')
+          .style('font-size', '.5rem')
+          .text(typeText(type))
+      );
     })
     .then(hideLoader())
     .catch((error) => console.log(error));
